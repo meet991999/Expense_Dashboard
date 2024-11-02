@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entries Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: white;
+            box-shadow: var(--card-shadow);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav-link {
+            color: #4b5563;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            background-color: #f3f4f6;
+        }
+
+        .nav-link.active {
+            color: white !important;
+            background-color: var(--primary-color);
+        }
+
+        .nav-link i {
+            margin-right: 0.5rem;
+        }
+
+        /* Rest of the styles remain the same */
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+
+        .filter-form {
+            gap: 1rem;
+        }
+
+        .form-control, .btn {
+            border-radius: 0.5rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: var(--background-color);
+            border-bottom: none;
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        #loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+        }
+
+        .loader-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .spinner-border {
+            color: var(--primary-color);
+        }
+
+        .pagination {
+            margin-top: 1.5rem;
+            gap: 0.25rem;
+        }
+
+        .page-link {
+            border: none;
+            color: #4b5563;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--primary-color);
+        }
+
+@media (max-width: 768px) {
+        .table {
+            font-size: 0.875rem; /* Smaller base font size for mobile */
+        }
+
+        /* Stack table on mobile */
+        .table-responsive-stack {
+            display: block;
+        }
+
+        .table-responsive-stack thead {
+            display: none; /* Hide original headers */
+        }
+
+        .table-responsive-stack tbody tr {
+            display: block;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .table-responsive-stack td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: none;
+            padding: 0.5rem 0;
+            text-align: right;
+        }
+
+        .table-responsive-stack td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            margin-right: 1rem;
+            text-align: left;
+            min-width: 100px;
+        }
+
+        .table-responsive-stack tr {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .table-responsive-stack tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Improved mobile card styles */
+        .card {
+            margin: 0 -0.5rem;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .card-body {
+            padding: 0.5rem;
+        }
+
+        /* Improved filter form on mobile */
+        .filter-form {
+            margin: 0 -0.25rem;
+        }
+
+        .filter-form > div {
+            padding: 0 0.25rem;
+        }
+
+        /* Improved pagination on mobile */
+        .pagination {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-top: 1rem;
+        }
+
+        .page-link {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    }    </style>
+</head>
+<body>
+    <!-- Enhanced Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light mb-4">
+        <div class="container">
+            <span class="navbar-brand">
+                <i class="fas fa-database me-2"></i>
+                Entries Dashboard
+            </span>
+            <!-- Added navigation links -->
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/home" id="homeBtn">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/graph" id="graphBtn">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Graph</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Rest of the content remains the same -->
+    <div class="container">
+        <!-- Filters Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>
+                    Filter Entries
+                </h5>
+            </div>
+            <div class="card-body">
+                <form class="row filter-form" onsubmit="event.preventDefault(); applyFilters();">
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label">Min Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" id="min_amount" class="form-control" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label">Max Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" id="max_amount" class="form-control" placeholder="999">
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" id="start_date" class="form-control">
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" id="end_date" class="form-control">
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label">Name</label>
+                        <input type="text" id="name" class="form-control" placeholder="Search name...">
+                    </div>
+                    <div class="col-md-4 col-lg-12 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Card -->
+        <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-table me-2"></i>
+            Entry Records
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-responsive-stack">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Item</th>
+                    </tr>
+                </thead>
+                <tbody id="entry-table-body">
+                    <!-- Dynamic content will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+            <div class="card-footer bg-white">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-0" id="pagination">
+                        <!-- Pagination content -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader">
+        <div class="loader-content">
+            <div class="spinner-border mb-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted">Loading data...</p>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 1;
+        //
+        // function fetchEntries(page, filters = {}) {
+        //     document.getElementById("loader").style.display = "block";
+        //
+        //     const query = new URLSearchParams({
+        //         page: page,
+        //         min_amount: filters.min_amount || '',
+        //         max_amount: filters.max_amount || '',
+        //         start_date: filters.start_date || '',
+        //         end_date: filters.end_date || '',
+        //         name: filters.name || ''
+        //     });
+        //
+        //     fetch(`/entries?${query.toString()}`)
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             const tableBody = document.getElementById("entry-table-body");
+        //             tableBody.innerHTML = "";
+        //
+        //             data.entries.forEach(entry => {
+        //                 const date = new Date(entry.datetime).toLocaleString(undefined, {
+        //                     year: 'numeric',
+        //                     month: 'short',
+        //                     day: 'numeric',
+        //                     hour: '2-digit',
+        //                     minute: '2-digit'
+        //                 });
+        //
+        //                 const amount = new Intl.NumberFormat('en-IN', {
+        //                     style: 'currency',
+        //                     currency: 'INR'
+        //                 }).format(entry.amount);
+        //
+        //
+        //                 tableBody.innerHTML += `
+        //                     <tr>
+        //                         <td>${date}</td>
+        //                         <td>${entry.name}</td>
+        //                         <td>${amount}</td>
+        //                         <td>${entry.item}</td>
+        //                     </tr>`;
+        //             });
+        //
+        //             currentPage = data.page;
+        //             renderPagination(data.page, data.total_pages);
+        //         })
+        //         .finally(() => {
+        //             document.getElementById("loader").style.display = "none";
+        //         });
+        // }
+        function fetchEntries(page, filters = {}) {
+        document.getElementById("loader").style.display = "block";
+
+        const query = new URLSearchParams({
+            page: page,
+            min_amount: filters.min_amount || '',
+            max_amount: filters.max_amount || '',
+            start_date: filters.start_date || '',
+            end_date: filters.end_date || '',
+            name: filters.name || ''
+        });
+
+        fetch(`/entries?${query.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("entry-table-body");
+                tableBody.innerHTML = "";
+
+                data.entries.forEach(entry => {
+                    const date = new Date(entry.datetime).toLocaleString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                        const amount = new Intl.NumberFormat('en-IN', {
+                            style: 'currency',
+                            currency: 'INR'
+                        }).format(entry.amount);
+
+                    // Added data-label attributes for mobile view
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td data-label="Date">${date}</td>
+                            <td data-label="Name">${entry.name}</td>
+                            <td data-label="Amount">${amount}</td>
+                            <td data-label="Item">${entry.item}</td>
+                        </tr>`;
+                });
+
+                currentPage = data.page;
+                renderPagination(data.page, data.total_pages);
+            })
+            .finally(() => {
+                document.getElementById("loader").style.display = "none";
+            });
+    }
+
+
+        function renderPagination(currentPage, totalPages) {
+            const pagination = document.getElementById("pagination");
+            pagination.innerHTML = "";
+
+            if (currentPage > 1) {
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="fetchEntries(1, getFilters())">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="fetchEntries(${currentPage - 1}, getFilters())">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>`;
+            }
+
+            const maxPagesToShow = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+            let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+            if (endPage - startPage < maxPagesToShow - 1) {
+                startPage = Math.max(1, endPage - maxPagesToShow + 1);
+            }
+
+            for (let page = startPage; page <= endPage; page++) {
+                pagination.innerHTML += `
+                    <li class="page-item ${page === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="fetchEntries(${page}, getFilters())">${page}</a>
+                    </li>`;
+            }
+
+            if (currentPage < totalPages) {
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="fetchEntries(${currentPage + 1}, getFilters())">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="fetchEntries(${totalPages}, getFilters())">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>`;
+            }
+        }
+
+        function applyFilters() {
+            const filters = getFilters();
+            fetchEntries(1, filters);
+        }
+
+        function getFilters() {
+            return {
+                min_amount: document.getElementById("min_amount").value,
+                max_amount: document.getElementById("max_amount").value,
+                start_date: document.getElementById("start_date").value,
+                end_date: document.getElementById("end_date").value,
+                name: document.getElementById("name").value
+            };
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchEntries(currentPage);
+        });
+    </script>
+</body>
+</html>
