@@ -93,6 +93,7 @@ def filter_data():
     results = list(collection.find(query, {"_id": 0}))
     return jsonify(results), 200
 
+
 @app.route('/data', methods=['GET'])
 def get_data():
     name = request.args.get('name')
@@ -102,23 +103,32 @@ def get_data():
     max_amount = request.args.get('max_amount')
 
     query = {}
+
+    # Handle name filter
     if name:
         query['name'] = name
+
+    # Handle date range
     if start_date or end_date:
         query['datetime'] = {}
         if start_date:
             query['datetime']['$gte'] = datetime.strptime(start_date, '%Y-%m-%d')
         if end_date:
             query['datetime']['$lte'] = datetime.strptime(end_date, '%Y-%m-%d')
+
+    # Handle amount range
     if min_amount or max_amount:
         query['amount'] = {}
         if min_amount:
-            query['amount']['$gte'] = int(min_amount)
+            query['amount']['$gte'] = float(min_amount)  # Using float instead of int for more flexibility
         if max_amount:
-            query['amount']['$lte'] = int(max_amount)
+            query['amount']['$lte'] = float(max_amount)
 
-    results = list(collection.find(query, {'_id': 0}))
-    return jsonify(results), 200
+    try:
+        results = list(collection.find(query, {'_id': 0}))
+        return jsonify(results), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Route to render the HTML page with the graph
 @app.route('/graph')
