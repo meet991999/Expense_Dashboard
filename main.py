@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
 import re
@@ -28,8 +28,8 @@ def parse_datetime(date_str, time_str):
 # Route to render the HTML form
 @app.route('/')
 def upload_form():
-    return render_template('chat_gpt_upload.html')
-
+    # return render_template('chat_gpt_upload.html')
+    return redirect("home")
 # Route to upload the file and store parsed data
 @app.route('/upload', methods=['POST'])
 def upload_file():
